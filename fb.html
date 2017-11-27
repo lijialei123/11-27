@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Document</title>
+		<style>
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+
+	<body>
+		名字：<input type="text" id="title"><br /> 
+		内容：<input type="text" id="content"><br />
+		
+		<button id="btn">点击</button>
+		<div id="box"></div>
+
+		<script>
+			function ajax(json) {
+
+				//['user=leo','pass=123456']
+				if(window.XMLHttpRequest) {
+					var ajax = new XMLHttpRequest();
+				} else {
+					var ajax = new ActiveXObject("Microsoft.XMLHTTP");
+				}
+
+				if(json.type == 'get') {
+					ajax.open('get', json.url + '?' + JsonToString(json.data), true);
+					ajax.send();
+				} else if(json.type == 'post') {
+					ajax.open('post', json.url, true);
+					ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+					ajax.send(JsonToString(json.data));
+				}
+
+				ajax.onreadystatechange = function() {
+					if(ajax.readyState == 4) {
+						if(ajax.status >= 200 && ajax.status < 300 || ajax.status == 304) {
+							json.success(ajax.responseText);
+
+						} else {
+							json.error && json.error();
+						}
+					};
+				};
+
+				function JsonToString(json) {
+					var arr = [];
+					for(var i in json) {
+						arr.push(i + '=' + json[i]);
+					};
+					return arr.join('&');
+				}
+			}
+
+			btn.onclick = function() {
+				ajax({
+					url: 'http://localhost:8888',
+					type: 'post',
+					data: {
+						title: title.value,
+						content: content.value
+					},
+					success: function(data) {
+						var a = ''
+						var json = JSON.parse(data)
+						for(var i in json) {
+							a += '<p>' + i + '</P>'
+						}
+						box.innerHTML = a;
+					}
+				})
+
+			}
+		</script>
+	</body>
+
+</html>
